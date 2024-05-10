@@ -86,6 +86,8 @@ class DiabetesDataBase:
         plt.title(f"Number of entries with/without diabetes compared to {col_to_compare.lower()}") 
         plt.show()
         
+    # TODO normalizing data??
+        
     def splitData(self, train=0.8, val=0.1, test=0.1):
         
         # TODO not sure if this is the right way to do
