@@ -34,18 +34,15 @@ class DiabetesDataBase:
                     
     def plot_boxplot_summary(self):
         fig, ax = plt.subplots(2, 4, figsize=(8, 4))
-        for idy in range(4):
-            ax[0, idy].boxplot(self.diabetes_df.iloc[:,idy], 
-                                    vert=False,
-                                    )
-            ax[0, idy].set_title(self.header_list[idy])
-            ax[0, idy].set(yticklabels=[])
-        for idy in range(4):
-            ax[1, idy].boxplot(self.diabetes_df.iloc[:,idy+4], 
-                                    vert=False,
-                                    )
-            ax[1, idy].set_title(self.header_list[idy+4])
-            ax[1, idy].set(yticklabels=[])
+        counter = 0
+        for idx in range(2):
+            for idy in range(4):
+                ax[idx, idy].boxplot(self.diabetes_df.iloc[:,counter], 
+                                        vert=False,
+                                        )
+                ax[idx, idy].set_title(self.header_list[counter])
+                ax[idx, idy].set(yticklabels=[])
+                counter += 1
         plt.tight_layout()
         plt.show()
         
