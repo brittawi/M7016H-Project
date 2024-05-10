@@ -71,6 +71,21 @@ class DiabetesDataBase:
         plt.title("Distribution of labels in dataset")
         plt.show()
         
+    def plot_connection_to_outcome(self, col_to_compare, reindexing=None):
+        grouped_data = self.diabetes_df[[col_to_compare,"Outcome","DiabetesPedigreeFunction"]].groupby([col_to_compare,"Outcome"]).count().unstack("Outcome")
+        
+        if reindexing != None:
+            grouped_data = grouped_data.reindex(reindexing, level=col_to_compare)
+
+        labels = grouped_data.columns.get_level_values(1)
+
+        grouped_data.plot.bar(figsize=(10,8))
+        plt.xlabel(col_to_compare.capitalize()) 
+        plt.ylabel("Number of entries") 
+        plt.legend(labels, title="Diabetes label")
+        plt.title(f"Number of entries with/without diabetes compared to {col_to_compare.lower()}") 
+        plt.show()
+        
     def splitData(self, train=0.8, val=0.1, test=0.1):
         
         # TODO not sure if this is the right way to do
@@ -97,6 +112,12 @@ if __name__ == '__main__':
     #ddb.plot_histogram_individual()
     #ddb.plot_boxplot_individual()
     #ddb.show_label_balance()
+    # TODO plots
+    # ddb.plot_connection_to_outcome("Age")
+    # ddb.plot_connection_to_outcome("BloodPressure")
+    # ddb.plot_connection_to_outcome("Glucose")
+    # ddb.plot_connection_to_outcome("Insulin")
+    # ddb.plot_connection_to_outcome("BMI")
     X_train, X_val, X_test, y_train, y_val, y_test = ddb.splitData()
     print(len(X_train))
     print(len(X_val))
