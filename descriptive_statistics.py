@@ -59,12 +59,26 @@ class DiabetesDataBase:
             plt.boxplot(self.diabetes_df.iloc[:,i], vert=False)
             plt.title(self.header_list[i])
             plt.show()
+            
+    def show_label_balance(self):
+        label_0 = len(self.diabetes_df[(self.diabetes_df["Outcome"]==0)])
+        label_1 = len(self.diabetes_df[(self.diabetes_df["Outcome"]==1)])
+        
+        # plot distribution of ones and zeros
+        labels = ["0", "1"]
+        labels_num = [0,1]
+
+        plt.bar(labels_num, [label_0,label_1])
+        plt.xticks(labels_num, labels)
+        plt.title("Distribution of labels in dataset")
+        plt.show()
         
 if __name__ == '__main__':
     csv_path = "diabetes.csv"
     ddb = DiabetesDataBase(csv_path)
-    ddb.describe_data()
-    ddb.plot_histogram_summary()
-    ddb.plot_boxplot_summary()
+    #ddb.describe_data()
+    #ddb.plot_histogram_summary()
+    #ddb.plot_boxplot_summary()
     #ddb.plot_histogram_individual()
     #ddb.plot_boxplot_individual()
+    ddb.show_label_balance()
