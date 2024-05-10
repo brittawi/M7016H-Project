@@ -1,5 +1,6 @@
 import pandas as pd
 import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
 
 
 class DiabetesDataBase:
@@ -73,6 +74,23 @@ class DiabetesDataBase:
         plt.title("Distribution of labels in dataset")
         plt.show()
         
+    def splitData(self, train=0.8, val=0.1, test=0.1):
+        
+        # TODO not sure if this is the right way to do
+        if train + val + test != 1:
+            return ValueError("The percentage of train, val and test percentage has to add up to 1")
+        X = self.diabetes_df.iloc[:, :-1].to_numpy()
+        y = self.diabetes_df["Outcome"].to_numpy()
+        
+        # splitting into train and test set
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=test, random_state=1)
+        # splitting train set into train and validation set
+        X_train, X_val, y_train, y_val = train_test_split(X_train, y_train, test_size=val/train, random_state=1) # TODO not sure about this val/train
+        
+        return X_train, X_val, X_test, y_train, y_val, y_test
+        
+        
+        
 if __name__ == '__main__':
     csv_path = "diabetes.csv"
     ddb = DiabetesDataBase(csv_path)
@@ -81,4 +99,8 @@ if __name__ == '__main__':
     #ddb.plot_boxplot_summary()
     #ddb.plot_histogram_individual()
     #ddb.plot_boxplot_individual()
-    ddb.show_label_balance()
+    #ddb.show_label_balance()
+    X_train, X_val, X_test, y_train, y_val, y_test = ddb.splitData()
+    print(len(X_train))
+    print(len(X_val))
+    print(len(X_test))
