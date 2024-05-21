@@ -10,6 +10,8 @@ Description...
     - Neural Networks (Emil)
 - data Normalization 
     - use Standardscaler!
+    - Maybe try some that handles outliers better? (RobustScaler or QuantileTransformer)
+    - https://scikit-learn.org/stable/auto_examples/preprocessing/plot_all_scaling.html#plot-all-scaling-standard-scaler-section
     - how to handle outliers? => leave them in there for now, discuss later
 - how to fill in missing values? (Britta)
     - split first
