@@ -1,4 +1,5 @@
 from sklearn.pipeline import Pipeline
+from sklearn.experimental import enable_halving_search_cv
 from sklearn.model_selection import GridSearchCV, HalvingRandomSearchCV
 from sklearn.metrics import confusion_matrix, ConfusionMatrixDisplay, classification_report
 
@@ -7,7 +8,7 @@ def grid_search(model, standard_scaler, params):
         ("scaler", standard_scaler), 
         ("classifier", model)
     ])
-    cls = GridSearchCV(pipe, params)
+    cls = GridSearchCV(pipe, params, cv=10)
     return cls
 
 def halving_random_search(model, standard_scaler, params):
