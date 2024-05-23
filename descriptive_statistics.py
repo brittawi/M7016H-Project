@@ -24,7 +24,7 @@ class DiabetesDataBase:
         
         df = self.diabetes_df.copy()
         
-        # replace missing values with NaN
+        # replace missing values with NaN so that they are not used for any calculations
         no_zero_list = ["Glucose", "BloodPressure", "SkinThickness", "BMI", "Insulin"]
         df[no_zero_list] = df[no_zero_list].replace(0, np.NaN) # TODO this gives a warning!
         
@@ -40,11 +40,6 @@ class DiabetesDataBase:
         df = df.drop(df[df.Insulin > 600].index)
         # Bloodpressure
         df = df.drop(df[df.BloodPressure > (Q3["BloodPressure"] + IQR["BloodPressure"] * 1.5)].index)
-        
-        print(df.head(10))
-        
-        # TODO not printing summary for all of them?!
-        self.plot_boxplot_summary(df)
         
         # shuffle the dataset
         df = df.sample(frac=1, random_state=self.random_state) 
