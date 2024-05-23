@@ -18,26 +18,50 @@ class DiabetesDataBase:
         self.header_list = self.diabetes_df.columns.tolist()
         
         #preprocess data
-        self.train_val_set, self.test_set = self._preprocess_data()
+        self.train_set,self.val_set, self.test_set = self._preprocess_data()
         
     def _preprocess_data(self):
         
-        # shuffle the dataset
-        df = self.diabetes_df.sample(frac=1, random_state=self.random_state) 
+        df = self.diabetes_df.copy()
         
-        # split data into training/val and test set as training and val set have the same preprocessing
-        train_val_size = int(df.shape[0]*(self.train_split+self.val_split))
-        train_val = df[0:train_val_size]
-        test = df[train_val_size:]
-        
-        # handle missing values
+        # replace missing values with NaN
         no_zero_list = ["Glucose", "BloodPressure", "SkinThickness", "BMI", "Insulin"]
-        test = test.loc[(test[no_zero_list] != 0).all(axis=1)] # delete rows with missing values in test set
-        # TODO giving a warning but found no way to fix, inplace is not working for me
-        train_val[no_zero_list] = train_val[no_zero_list].replace(0, np.NaN) # convert zeros to NaN as this is easier to work with
-        train_val = train_val.fillna(train_val.mean(skipna=True)) # replace NaNs with mean from column
+        df[no_zero_list] = df[no_zero_list].replace(0, np.NaN) # TODO this gives a warning!
         
-        return train_val, test
+        # compute IQR
+        Q1 = df.quantile(0.25)
+        Q3 = df.quantile(0.75)
+        IQR = Q3-Q1
+        
+        # handle outliers, we decided to only handle upper outliers for some columns
+        # Skinthickness
+        df = df[df["SkinThickness"] < 80]
+        # TODO update threshold?!
+        # Insulin
+        df = df[df["Insulin"] < (Q3["Insulin"] + IQR["Insulin"] * 1.5)]
+        # Bloodpressure
+        df = df[df["BloodPressure"] < (Q3["BloodPressure"] + IQR["BloodPressure"] * 1.5)]
+        
+        # TODO not printing summary for all of them?!
+        self.plot_boxplot_summary(df)
+        
+        # shuffle the dataset
+        df = df.sample(frac=1, random_state=self.random_state) 
+        
+        # split data into training, val and test set as training and val set have the same preprocessing
+        train_size = int(df.shape[0]*(self.train_split))
+        val_size = int(df.shape[0]*(self.val_split)) + train_size
+        train_set = df[0:train_size]
+        val_set = df[train_size:val_size]
+        test_set = df[val_size:]
+        
+        # handle missing values, impute with median from train set
+        median_train = train_set.median(skipna=True)
+        train_set = train_set.fillna(median_train)
+        val_set = val_set.fillna(median_train)
+        test_set = test_set.fillna(median_train)
+        
+        return train_set, val_set, test_set
         
     
     def describe_data(self, df):
@@ -57,7 +81,6 @@ class DiabetesDataBase:
         
                     
     def plot_boxplot_summary(self, df):
-        header_list = df.columns.tolist()
         fig, ax = plt.subplots(2, 4, figsize=(8, 4))
         counter = 0
         for idx in range(2):
@@ -65,7 +88,7 @@ class DiabetesDataBase:
                 ax[idx, idy].boxplot(df.iloc[:,counter], 
                                         vert=False,
                                         )
-                ax[idx, idy].set_title(header_list[counter])
+                ax[idx, idy].set_title(self.header_list[counter])
                 ax[idx, idy].set(yticklabels=[])
                 counter += 1
         plt.tight_layout()
@@ -111,18 +134,19 @@ class DiabetesDataBase:
         plt.title(f"Number of entries with/without diabetes compared to {col_to_compare.lower()}") 
         plt.show()
         
-    def splitData(self):
+    def get_splits(self):
+        
+        # train data
+        X_train = self.train_set.iloc[:, :-1].to_numpy()
+        y_train = self.train_set["Outcome"].to_numpy()
+        
+        # val data
+        X_val = self.val_set.iloc[:, :-1].to_numpy()
+        y_val = self.val_set["Outcome"].to_numpy()
         
         # test data
         X_test = self.test_set.iloc[:, :-1].to_numpy()
         y_test = self.test_set["Outcome"].to_numpy()
-        
-        # train_val data
-        X = self.train_val_set.iloc[:, :-1].to_numpy()
-        y = self.train_val_set["Outcome"].to_numpy()
-        
-        # splitting train_val set into train and validation set
-        X_train, X_val, y_train, y_val = train_test_split(X, y, test_size=self.val_split/self.train_split, random_state=self.random_state) # TODO not sure about this val/train
         
         return X_train, X_val, X_test, y_train, y_val, y_test
         
@@ -158,7 +182,7 @@ if __name__ == '__main__':
     ddb.show_label_balance(ddb.test_set)
     
     # split the data
-    X_train, X_val, X_test, y_train, y_val, y_test = ddb.splitData()
+    X_train, X_val, X_test, y_train, y_val, y_test = ddb.get_splits()
     print(len(X_train))
     print(len(X_val))
     print(len(X_test))
