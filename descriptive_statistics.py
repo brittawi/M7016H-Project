@@ -115,6 +115,18 @@ class DiabetesDataBase:
         plt.title("Distribution of labels in dataset")
         plt.show()
         
+    def show_split_labels(self):
+        x = ["train", "val", "test"]
+        healthy_labels = [len(self.train_set[(self.train_set["Outcome"]==0)]), len(self.val_set[(self.val_set["Outcome"]==0)]), len(self.test_set[(self.test_set["Outcome"]==0)])]
+        diabetic_labels = [len(self.train_set[(self.train_set["Outcome"]==1)]), len(self.val_set[(self.val_set["Outcome"]==1)]), len(self.test_set[(self.test_set["Outcome"]==1)])]
+        plt.bar(x, healthy_labels, color='r')
+        plt.bar(x, diabetic_labels, bottom=healthy_labels, color='b')
+        plt.xlabel("Splits")
+        plt.ylabel("Number of Labels")
+        plt.legend(["Healthy","Diabetes"])
+        plt.title("Size of splits and number of labels in each split")
+        plt.show()
+        
     def plot_connection_to_outcome(self, col_to_compare, reindexing=None):
         grouped_data = self.diabetes_df[[col_to_compare,"Outcome","DiabetesPedigreeFunction"]].groupby([col_to_compare,"Outcome"]).count().unstack("Outcome")
         
