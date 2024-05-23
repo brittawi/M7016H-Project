@@ -11,12 +11,13 @@ def grid_search(model, standard_scaler, params):
     cls = GridSearchCV(pipe, params, cv=10)
     return cls
 
-def halving_random_search(model, standard_scaler, params):
+def halving_random_search(model, standard_scaler, params, random_state=42):
     pipe = Pipeline(steps=[
         ("scaler", standard_scaler), 
         ("classifier", model)
     ])
-    cls = HalvingRandomSearchCV(pipe, params)
+    # TODO
+    cls = HalvingRandomSearchCV(pipe, params, random_state=random_state)
     return cls
 
 def validate(cls, x_val, y_val):
