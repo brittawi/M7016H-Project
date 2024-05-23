@@ -35,12 +35,13 @@ class DiabetesDataBase:
         
         # handle outliers, we decided to only handle upper outliers for some columns
         # Skinthickness
-        df = df[df["SkinThickness"] < 80]
-        # TODO update threshold?!
+        df = df.drop(df[df.SkinThickness > 80].index)
         # Insulin
-        df = df[df["Insulin"] < (Q3["Insulin"] + IQR["Insulin"] * 1.5)]
+        df = df.drop(df[df.Insulin > 600].index)
         # Bloodpressure
-        df = df[df["BloodPressure"] < (Q3["BloodPressure"] + IQR["BloodPressure"] * 1.5)]
+        df = df.drop(df[df.BloodPressure > (Q3["BloodPressure"] + IQR["BloodPressure"] * 1.5)].index)
+        
+        print(df.head(10))
         
         # TODO not printing summary for all of them?!
         self.plot_boxplot_summary(df)
