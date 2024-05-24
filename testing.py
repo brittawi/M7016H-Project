@@ -68,7 +68,6 @@ if __name__ == '__main__':
         }
         knn_cls = grid_search(knn, SCALER, parameters)
         knn_cls.fit(X_train, y_train)
-        #print(knn_cls.best_estimator_.get_params()['classifier'])
         knn_avg, knn_cm = validate(knn_cls, X_val, y_val)
         #writer.add_scalars("knn", knn_avg)
         #writer.flush()
@@ -114,8 +113,8 @@ if __name__ == '__main__':
         # SVM
         svm = SVC()
         parameters = {
-            "classifier__C": [round(i*0.2, 1) for i in range(1, 11)],
-            "classifier__gamma": [round(i*0.1, 1) for i in range(1, 11)],
+            "classifier__C": [0.01, 0.1, 1, 10, 100],
+            "classifier__gamma": [0.01, 0.1, 1, 10, 100],
             "classifier__kernel": ["linear", "rbf", "sigmoid"]
         }
         svm_cls = grid_search(svm, SCALER2, parameters)
@@ -134,8 +133,7 @@ if __name__ == '__main__':
                     batch_size='auto',
                     learning_rate_init=0.001,
                     # Early stopping kinda does CV too https://scikit-learn.org/stable/modules/generated/sklearn.neural_network.MLPClassifier.html#sklearn.neural_network.MLPClassifier
-                    # But got worse results
-                    early_stopping=True, # False
+                    early_stopping=True,
                     shuffle=True,
                     random_state=seed,
                     alpha=0.0001, # L2 loss strenght
@@ -146,12 +144,11 @@ if __name__ == '__main__':
 
         parameters = {
             "classifier__solver": ["adam", "sgd"],
-            #"classifier__batch_size": [4, 16, 32, 64],
             "classifier__activation": ["relu", "tanh", "logistic"],
             "classifier__learning_rate_init": [0.0001, 0.001, 0.01, 0.005],
             "classifier__hidden_layer_sizes": [[10,10], [100,10], [50,100,50], [100], [10]],
-            #"classifier__beta_1": [round(i*0.001, 3) for i in range(90, 95)],
-            #"classifier__beta_2": [round(i*0.001, 4) for i in range(985, 999, 3)]
+            "classifier__beta_1": [round(i*0.001, 3) for i in range(90, 95)],
+            "classifier__beta_2": [round(i*0.001, 4) for i in range(985, 999, 3)]
         }
 
         mlp_cls = halving_random_search(mlp, SCALER2, parameters, seed)
@@ -163,8 +160,6 @@ if __name__ == '__main__':
         dict1 = Counter(mlp_avg)
         results["MLP"]["Metrics"] += dict1
         results["MLP"]["Params"].append(mlp_cls.best_estimator_.get_params()['classifier'])
-        
-        print(results)
         
     # end for loop => calculate averages
     models = ["KNN", "RandomForest", "LogReg", "SVM", "MLP"]
