@@ -22,7 +22,7 @@ from datetime import datetime
 # Hyperparameters
 SCALER = StandardScaler()
 #SCALER = RobustScaler() # No difference to standard scaler for models I test except mlp
-SCALER2 = QuantileTransformer(n_quantiles=334) # Slightly better result for regression and SVM
+#SCALER = QuantileTransformer(n_quantiles=334) # Slightly better result for regression and SVM
 RANDOM_STATES = [4,17,77,103,176]
 Random_state_data = 17
 csv_path = "diabetes.csv"
@@ -117,7 +117,7 @@ if __name__ == '__main__':
             "classifier__gamma": [0.01, 0.1, 1, 10, 100],
             "classifier__kernel": ["linear", "rbf", "sigmoid"]
         }
-        svm_cls = grid_search(svm, SCALER2, parameters)
+        svm_cls = grid_search(svm, SCALER, parameters)
         svm_cls.fit(X_train, y_train)
         svm_avg, svm_cm = validate(svm_cls, X_val, y_val)
         #writer.add_scalars("svm", svm_avg)
@@ -151,7 +151,7 @@ if __name__ == '__main__':
             "classifier__beta_2": [round(i*0.001, 4) for i in range(985, 999, 3)]
         }
 
-        mlp_cls = halving_random_search(mlp, SCALER2, parameters, seed)
+        mlp_cls = halving_random_search(mlp, SCALER, parameters, seed)
         mlp_cls.fit(X_train, y_train)
         mlp_avg, mlp_cm = validate(mlp_cls, X_val, y_val)
         #writer.add_scalars("mlp", mlp_avg)
