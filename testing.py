@@ -150,7 +150,7 @@ if __name__ == '__main__':
         mlp_cls = halving_random_search(mlp, SCALER, parameters)
         mlp_cls.fit(X_train, y_train)
 
-        for seed in RANDOM_STATES:
+        for j, seed in enumerate(RANDOM_STATES):
             # get params
             params = {}
             for key in mlp_cls.best_params_:
@@ -172,13 +172,13 @@ if __name__ == '__main__':
                 ("classifier", mlp2)
             ])
             pipe.fit(X_train, y_train)
-            mlp_avg, mlp_cm = validate(mlp_cls, X_val, y_val)
+            mlp_avg, mlp_cm = validate(pipe, X_val, y_val)
             writer.add_scalars("mlp", mlp_avg)
             writer.flush()
             dict1 = Counter(mlp_avg)
-            results["MLP"]["Metrics"][str(i)] += dict1
-            if i == 0:
-                results["MLP"]["Params"][str(i)].append(mlp_cls.best_estimator_.get_params()['classifier'])
+            results["MLP"]["Metrics"][str(j)] += dict1
+            if j == 0:
+                results["MLP"]["Params"][str(j)].append(mlp_cls.best_estimator_.get_params()['classifier'])
 
     
     writer.close()
