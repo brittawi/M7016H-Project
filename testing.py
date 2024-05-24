@@ -43,8 +43,19 @@ if __name__ == '__main__':
         "KNN": {"Metrics": Counter({'precision': 0, 'recall': 0, 'f1-score': 0, 'accuracy': 0}),
                 "Params": []
             },
-        "RandomForest":{"Metrics":  Counter({'precision': 0, 'recall': 0, 'f1-score': 0, 'accuracy': 0}),
-                "Params": []
+        "RandomForest":{"Metrics":  {
+            "0": Counter({'precision': 0, 'recall': 0, 'f1-score': 0, 'accuracy': 0}),
+            "1": Counter({'precision': 0, 'recall': 0, 'f1-score': 0, 'accuracy': 0}),
+            "2": Counter({'precision': 0, 'recall': 0, 'f1-score': 0, 'accuracy': 0}),
+            "3": Counter({'precision': 0, 'recall': 0, 'f1-score': 0, 'accuracy': 0}),
+            "4": Counter({'precision': 0, 'recall': 0, 'f1-score': 0, 'accuracy': 0}),},
+                "Params": {
+                    "0": [],
+                    "1": [],
+                    "2": [],
+                    "3": [],
+                    "4": [],
+                }
             },
         "LogReg":{"Metrics":  Counter({'precision': 0, 'recall': 0, 'f1-score': 0, 'accuracy': 0}),
                 "Params": []
@@ -189,7 +200,7 @@ if __name__ == '__main__':
             print(f'F1-Score = {results[model]["Metrics"][str(i)]["f1-score"]/ len(RANDOM_STATES)}')
             print(f'Precision = {results[model]["Metrics"][str(i)]["precision"]/ len(RANDOM_STATES)}')
             print(f'Recall = {results[model]["Metrics"][str(i)]["recall"]/ len(RANDOM_STATES)}')
-            print(f'Params = {results[model][str(i)]["Params"]}')
+            print(f'Params = {results[model]["Params"][str(i)]}')
             print()
     
     
