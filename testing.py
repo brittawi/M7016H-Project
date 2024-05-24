@@ -176,9 +176,9 @@ if __name__ == '__main__':
             writer.add_scalars("mlp", mlp_avg)
             writer.flush()
             dict1 = Counter(mlp_avg)
-            results["MLP"]["Metrics"][str(j)] += dict1
+            results["MLP"]["Metrics"][str(i)] += dict1
             if j == 0:
-                results["MLP"]["Params"][str(j)].append(mlp_cls.best_estimator_.get_params()['classifier'])
+                results["MLP"]["Params"][str(i)].append(mlp_cls.best_estimator_.get_params()['classifier'])
 
     
     writer.close()
