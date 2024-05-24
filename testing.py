@@ -80,7 +80,7 @@ if __name__ == '__main__':
         # https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74
         parameters = {
             
-            "classifier__n_estimators": [int(x) for x in np.linspace(start = 100, stop = 1000, num = 100)],
+            "classifier__n_estimators": [int(x) for x in np.linspace(start = 100, stop = 2000, num = 10)],
             "classifier__max_features": ['log2', 'sqrt'],
             "classifier__max_depth" : [int(x) for x in np.linspace(10, 110, num = 11)],
             "classifier__min_samples_split": [2,5,10],
