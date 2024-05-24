@@ -11,7 +11,7 @@ def grid_search(model, standard_scaler, params):
     cls = GridSearchCV(pipe, params, cv=10)
     return cls
 
-def halving_random_search(model, standard_scaler, params, random_state=42):
+def halving_random_search(model, standard_scaler, params, random_state=None):
     pipe = Pipeline(steps=[
         ("scaler", standard_scaler), 
         ("classifier", model)
