@@ -30,6 +30,6 @@ def validate(cls, x_val, y_val):
     accuracy = performance_dict["accuracy"]
     macro_avg_wo_support["accuracy"] = accuracy
     cm = confusion_matrix(y_val, predictions)
-    disp = ConfusionMatrixDisplay(confusion_matrix=cm,display_labels=[True,False])
+    disp = ConfusionMatrixDisplay(confusion_matrix=cm,display_labels=["Not diabetes","Diabetes"])
     disp.plot()
     return macro_avg_wo_support, cm

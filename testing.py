@@ -80,6 +80,7 @@ if __name__ == '__main__':
     }
     
     # KNN
+    print("KNN")
     knn = KNeighborsClassifier()
     parameters = {
         "classifier__n_neighbors": list(range(1, 31)),
@@ -96,6 +97,7 @@ if __name__ == '__main__':
     results["KNN"]["Params"].append(knn_cls.best_estimator_.get_params()['classifier'])
     
     # Logistic Regression
+    print("Log reg")
     log_reg = LogisticRegression(max_iter=200)
     parameters = {
         "classifier__penalty": [None, "l2"]
@@ -110,6 +112,7 @@ if __name__ == '__main__':
     results["LogReg"]["Params"].append(reg_cls.best_estimator_.get_params()['classifier'])
     
     # SVM
+    print("SVM")
     svm = SVC()
     parameters = {
         "classifier__C": [0.01, 0.1, 1, 10, 100],
@@ -126,6 +129,7 @@ if __name__ == '__main__':
     results["SVM"]["Params"].append(svm_cls.best_estimator_.get_params()['classifier'])
     
     # for MLP and Random Forest get 5 models from hyperparameter optimization and run these 5 times
+    print("MLP")
     for i in range(5):
         # MLP
         mlp = MLPClassifier(activation='relu', #relu
@@ -151,6 +155,7 @@ if __name__ == '__main__':
         mlp_cls.fit(X_train, y_train)
 
         for j, seed in enumerate(RANDOM_STATES):
+            print("MLP:", i, j)
             # get params
             params = {}
             for key in mlp_cls.best_params_:
@@ -179,8 +184,9 @@ if __name__ == '__main__':
             results["MLP"]["Metrics"][str(i)] += dict1
             if j == 0:
                 results["MLP"]["Params"][str(i)].append(mlp_cls.best_estimator_.get_params()['classifier'])
-
+    
     # Random Forest
+    print("Random Forest")
     for i in range(5):
         random_forest = RandomForestClassifier()
         # https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74
@@ -196,14 +202,15 @@ if __name__ == '__main__':
         random_forest_cls.fit(X_train, y_train)
         
         for j, seed in enumerate(RANDOM_STATES):
+            print("Random Forest", i, j)
             # get params
             params = {}
             for key in random_forest_cls.best_params_:
                 newKey = key.replace("classifier__","")
                 params[newKey] = random_forest_cls.best_params_[key]
-              
+            print(params)
             random_forest2 = RandomForestClassifier(random_state=seed)  
-            random_forest2.set_params(params)
+            random_forest2.set_params(**params)
             pipe = Pipeline(steps=[
                 ("scaler", SCALER), 
                 ("classifier", random_forest2)
