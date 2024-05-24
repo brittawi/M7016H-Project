@@ -79,51 +79,51 @@ if __name__ == '__main__':
             },
     }
     
-    # # KNN
-    # knn = KNeighborsClassifier()
-    # parameters = {
-    #     "classifier__n_neighbors": list(range(1, 31)),
-    #     "classifier__metric": ['euclidean','manhattan'],
-    #     "classifier__weights":['uniform','distance']
-    # }
-    # knn_cls = grid_search(knn, SCALER, parameters)
-    # knn_cls.fit(X_train, y_train)
-    # knn_avg, knn_cm = validate(knn_cls, X_val, y_val)
-    # writer.add_scalars("knn", knn_avg)
-    # writer.flush()
-    # dict1 = Counter(knn_avg)
-    # results["KNN"]["Metrics"] += dict1
-    # results["KNN"]["Params"].append(knn_cls.best_estimator_.get_params()['classifier'])
+    # KNN
+    knn = KNeighborsClassifier()
+    parameters = {
+        "classifier__n_neighbors": list(range(1, 31)),
+        "classifier__metric": ['euclidean','manhattan'],
+        "classifier__weights":['uniform','distance']
+    }
+    knn_cls = grid_search(knn, SCALER, parameters)
+    knn_cls.fit(X_train, y_train)
+    knn_avg, knn_cm = validate(knn_cls, X_val, y_val)
+    writer.add_scalars("knn", knn_avg)
+    writer.flush()
+    dict1 = Counter(knn_avg)
+    results["KNN"]["Metrics"] += dict1
+    results["KNN"]["Params"].append(knn_cls.best_estimator_.get_params()['classifier'])
     
-    # # Logistic Regression
-    # log_reg = LogisticRegression(max_iter=200)
-    # parameters = {
-    #     "classifier__penalty": [None, "l2"]
-    # }
-    # reg_cls = grid_search(log_reg, SCALER, parameters)
-    # reg_cls.fit(X_train, y_train)
-    # log_reg_avg, log_reg_cm = validate(reg_cls, X_val, y_val)
-    # writer.add_scalars("log_reg", log_reg_avg)
-    # writer.flush()
-    # dict1 = Counter(log_reg_avg)
-    # results["LogReg"]["Metrics"] += dict1
-    # results["LogReg"]["Params"].append(reg_cls.best_estimator_.get_params()['classifier'])
+    # Logistic Regression
+    log_reg = LogisticRegression(max_iter=200)
+    parameters = {
+        "classifier__penalty": [None, "l2"]
+    }
+    reg_cls = grid_search(log_reg, SCALER, parameters)
+    reg_cls.fit(X_train, y_train)
+    log_reg_avg, log_reg_cm = validate(reg_cls, X_val, y_val)
+    writer.add_scalars("log_reg", log_reg_avg)
+    writer.flush()
+    dict1 = Counter(log_reg_avg)
+    results["LogReg"]["Metrics"] += dict1
+    results["LogReg"]["Params"].append(reg_cls.best_estimator_.get_params()['classifier'])
     
-    # # SVM
-    # svm = SVC()
-    # parameters = {
-    #     "classifier__C": [0.01, 0.1, 1, 10, 100],
-    #     "classifier__gamma": [0.01, 0.1, 1, 10, 100],
-    #     "classifier__kernel": ["linear", "rbf", "sigmoid"]
-    # }
-    # svm_cls = grid_search(svm, SCALER, parameters)
-    # svm_cls.fit(X_train, y_train)
-    # svm_avg, svm_cm = validate(svm_cls, X_val, y_val)
-    # writer.add_scalars("svm", svm_avg)
-    # writer.flush()
-    # dict1 = Counter(svm_avg)
-    # results["SVM"]["Metrics"] += dict1
-    # results["SVM"]["Params"].append(svm_cls.best_estimator_.get_params()['classifier'])
+    # SVM
+    svm = SVC()
+    parameters = {
+        "classifier__C": [0.01, 0.1, 1, 10, 100],
+        "classifier__gamma": [0.01, 0.1, 1, 10, 100],
+        "classifier__kernel": ["linear", "rbf", "sigmoid"]
+    }
+    svm_cls = grid_search(svm, SCALER, parameters)
+    svm_cls.fit(X_train, y_train)
+    svm_avg, svm_cm = validate(svm_cls, X_val, y_val)
+    writer.add_scalars("svm", svm_avg)
+    writer.flush()
+    dict1 = Counter(svm_avg)
+    results["SVM"]["Metrics"] += dict1
+    results["SVM"]["Params"].append(svm_cls.best_estimator_.get_params()['classifier'])
     
     # for MLP and Random Forest get 5 models from hyperparameter optimization and run these 5 times
     for i in range(5):
@@ -180,7 +180,44 @@ if __name__ == '__main__':
             if j == 0:
                 results["MLP"]["Params"][str(i)].append(mlp_cls.best_estimator_.get_params()['classifier'])
 
-    
+    # Random Forest
+    for i in range(5):
+        random_forest = RandomForestClassifier()
+        # https://towardsdatascience.com/hyperparameter-tuning-the-random-forest-in-python-using-scikit-learn-28d2aa77dd74
+        parameters = {
+            "classifier__n_estimators": [int(x) for x in np.linspace(start = 100, stop = 2000, num = 10)],
+            "classifier__max_features": ['log2', 'sqrt'],
+            "classifier__max_depth" : [int(x) for x in np.linspace(10, 110, num = 11)],
+            "classifier__min_samples_split": [2,5,10],
+            "classifier__min_samples_leaf": [1, 2, 4],
+            "classifier__bootstrap": [True, False],
+        }
+        random_forest_cls = halving_random_search(random_forest, SCALER, parameters)
+        random_forest_cls.fit(X_train, y_train)
+        
+        for j, seed in enumerate(RANDOM_STATES):
+            # get params
+            params = {}
+            for key in random_forest_cls.best_params_:
+                newKey = key.replace("classifier__","")
+                params[newKey] = random_forest_cls.best_params_[key]
+              
+            random_forest2 = RandomForestClassifier(random_state=seed)  
+            random_forest2.set_params(params)
+            pipe = Pipeline(steps=[
+                ("scaler", SCALER), 
+                ("classifier", random_forest2)
+            ])
+            pipe.fit(X_train, y_train)
+        
+            random_forest_avg, random_forest_cm = validate(pipe, X_val, y_val)
+            writer.add_scalars("random_forest", random_forest_avg)
+            writer.flush()
+            dict1 = Counter(random_forest_avg)
+            results["RandomForest"]["Metrics"][str(i)]  += dict1
+            if j == 0:
+                results["RandomForest"]["Params"][str(i)] .append(random_forest_cls.best_estimator_.get_params()['classifier'])
+        
     writer.close()
     # end for loop => calculate averages
     models = ["KNN", "LogReg", "SVM"]
