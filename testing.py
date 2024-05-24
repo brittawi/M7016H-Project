@@ -69,8 +69,8 @@ if __name__ == '__main__':
         knn_cls = grid_search(knn, SCALER, parameters)
         knn_cls.fit(X_train, y_train)
         knn_avg, knn_cm = validate(knn_cls, X_val, y_val)
-        #writer.add_scalars("knn", knn_avg)
-        #writer.flush()
+        writer.add_scalars("knn", knn_avg)
+        writer.flush()
         dict1 = Counter(knn_avg)
         results["KNN"]["Metrics"] += dict1
         results["KNN"]["Params"].append(knn_cls.best_estimator_.get_params()['classifier'])
@@ -90,8 +90,8 @@ if __name__ == '__main__':
         random_forest_cls = halving_random_search(random_forest, SCALER, parameters, seed)
         random_forest_cls.fit(X_train, y_train)
         random_forest_avg, random_forest_cm = validate(random_forest_cls, X_val, y_val)
-        #writer.add_scalars("random_forest", random_forest_avg)
-        #writer.flush()
+        writer.add_scalars("random_forest", random_forest_avg)
+        writer.flush()
         dict1 = Counter(random_forest_avg)
         results["RandomForest"]["Metrics"] += dict1
         results["RandomForest"]["Params"].append(random_forest_cls.best_estimator_.get_params()['classifier'])
@@ -104,8 +104,8 @@ if __name__ == '__main__':
         reg_cls = grid_search(log_reg, SCALER, parameters)
         reg_cls.fit(X_train, y_train)
         log_reg_avg, log_reg_cm = validate(reg_cls, X_val, y_val)
-        #writer.add_scalars("log_reg", log_reg_avg)
-        #writer.flush()
+        writer.add_scalars("log_reg", log_reg_avg)
+        writer.flush()
         dict1 = Counter(log_reg_avg)
         results["LogReg"]["Metrics"] += dict1
         results["LogReg"]["Params"].append(reg_cls.best_estimator_.get_params()['classifier'])
@@ -120,8 +120,8 @@ if __name__ == '__main__':
         svm_cls = grid_search(svm, SCALER, parameters)
         svm_cls.fit(X_train, y_train)
         svm_avg, svm_cm = validate(svm_cls, X_val, y_val)
-        #writer.add_scalars("svm", svm_avg)
-        #writer.flush()
+        writer.add_scalars("svm", svm_avg)
+        writer.flush()
         dict1 = Counter(svm_avg)
         results["SVM"]["Metrics"] += dict1
         results["SVM"]["Params"].append(svm_cls.best_estimator_.get_params()['classifier'])
@@ -154,13 +154,13 @@ if __name__ == '__main__':
         mlp_cls = halving_random_search(mlp, SCALER, parameters, seed)
         mlp_cls.fit(X_train, y_train)
         mlp_avg, mlp_cm = validate(mlp_cls, X_val, y_val)
-        #writer.add_scalars("mlp", mlp_avg)
-        #writer.flush()
-        #writer.close()
+        writer.add_scalars("mlp", mlp_avg)
+        writer.flush()
         dict1 = Counter(mlp_avg)
         results["MLP"]["Metrics"] += dict1
         results["MLP"]["Params"].append(mlp_cls.best_estimator_.get_params()['classifier'])
-        
+    
+    writer.close()
     # end for loop => calculate averages
     models = ["KNN", "RandomForest", "LogReg", "SVM", "MLP"]
     for model in models:
